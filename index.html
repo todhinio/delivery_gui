@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1 , maximum-scale=1"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta charset="utf-8">
+		<title>Hof Wichmann</title>
+
+        <link rel="stylesheet" href="styles/allgemein.css" type="text/css">
+		<link rel="stylesheet" href="styles/button.css" type="text/css">
+        <link rel="stylesheet" href="styles/liste.css" type="text/css">
+		<link rel="stylesheet" href="styles/toolbar.css" type="text/css">
+
+		<link rel="apple-touch-icon-precomposed" href="/images/icon/icon-ipad.png" sizes="72x72" />
+		<link rel="apple-touch-icon-precomposed" href="/images/icon/icon-iphone-retina.png" sizes="114x114" />
+		<link rel="apple-touch-icon-precomposed" href="/images/icon/icon-iphone.png" />
+
+		<link rel="apple-touch-startup-image" href="/images/icon/splash-ipad-portrait.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px)" />
+		<link rel="apple-touch-startup-image" href="/images/icon/splash-iphone.png" />
+
+	</head>
+	<body>
+		
+		<section id="login">
+			<h2>Anmeldung</h2>
+			<label for="username">Benutzername</label>
+			<input id="username" name="username" value="tomee" />
+			<label for="password"  >Passwort</label>			
+			<input name="password"  value="tomee" />
+			<button class="iconBase iconOn" title="Anmelden" ><img src="images/icon_on_empty32.png" /></button>
+		</section>
+		<section id="tourlist">
+			<h2>
+				<a href="#login" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Abmelden" /></a>
+				<span>Meine Touren</span>
+			</h2>
+			<ul>
+			</ul>
+		</section>
+		<section id="vehicle">
+			<h2><a href="#tourlist"  class="iconBase iconBack" onclick="selectSection('tourlist')" ><img src="images/icon_on_empty32.png" title="Zur&uuml;ck" /></a>
+			Auswahl Auto
+			</h2>
+			<ul>
+				<!-- Wird dynamisch befüllt -->
+			</ul>
+		</section>
+		<section id="tour">
+			<h2>
+				<a href="#tourlist" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Meine Touren" /></a>
+				<span>Tour</span>
+			</h2>
+			<div class="deliver">
+				<a href="javascript:activateVehicleSelect()"></a>
+			</div>
+			<ul>
+			</ul>
+		</section>
+		<section id="tourstop">
+			<h2>
+				<a href="#tour" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
+				<span> Tourstop</span><span id="stoptarget"></span>
+				<span id="stopphone"></span>
+			</h2>
+			<div class="deliver" >
+				<span id="stoptarget_adr"></span>
+			</div>
+			<form id="stop_form" name="stop_form">
+			<h3 id="stopgrouptitle"></h3>
+			<ul id="stoupgroup">
+			</ul>
+			<h3 id="receivetitle"></h3>
+			<ul id="receive">
+			</ul>
+			
+			</form>
+		</section>
+		<!-- 
+		<section id="receive">
+			<h2>
+				<a href="#tourstop" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
+				<span>Ware abholen</span>
+				
+			</h2>
+			<ul id="receivelist">
+			</ul>
+		</section>-->
+		<section id="delivery">
+			<h2>
+				<a href="#tourstop" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
+				<span>Auslieferung</span>
+			</h2>
+			<div class="deliver" >Ware übergeben an</div>
+			<ul>
+			</ul>
+			<!-- 
+			<div>
+				<a class="iconBase iconConfirm" href="javascript:void(0)" onclick="sendDelivery()"></a>
+			</div>
+			 -->
+		</section>
+		
+		<section id="karte">
+			<h2>
+				<a href="#tour" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
+				<span> Karte</span>
+			</h2>
+			<a id="traffic" style="position:absolute;right:121px;top:20px" class="iconBase iconTraffic" href="javascript:toggleTrafficLayer()" title="Baustellen" ><img src="images/icon_on_empty32.png" /></a>
+			
+			<a style="position:absolute;right:84px;top:20px" class="iconBase iconZoom2Extent" href="javascript:zoomToAll()" title="Alle" ><img src="images/icon_on_empty32.png" /></a>
+			<a style="position:absolute;right:47px;top:20px" class="iconBase iconZoom" href="javascript:zoomToMyPosition()" title="Meine Poition" ><img src="images/icon_on_empty32.png" /></a>
+			
+			<a id="routeloc" style="position:absolute;right:10px;top:20px" class="iconBase iconRoute" href="javascript:getRouteFromLocation()" title="Abholen" ><img src="images/icon_on_empty32.png" /></a>
+			<span id="loaderroute" style="position:absolute;right:10px;top:20px;display:none" ><img src="images/loader.gif" /></span>
+			<div id="routesum" class="deliver" ></div>
+			<ul>
+				<li id="map" style="height:200px;width:auto"></li>
+			</ul>
+		</section>
+		
+		<script src="javascript/jquery.min.js"></script>
+		<script src="javascript/jquery.base64.min.js"></script>
+		<!-- 
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpZZVAYAf6y6nO1IQGl4ICQb4eZJFksJM&sensor=false"></script>
+		 -->
+		<script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+		<script src="javascript/delivery.js"></script>
+		<script src="javascript/mapext_google.js"></script>
+
+	</body>
+</html>
