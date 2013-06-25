@@ -1,0 +1,241 @@
+body {
+	margin: 0;
+	font-family: Helvetica, sans-serif;
+}
+section {
+    overflow: scroll;
+    -webkit-overflow-scrolling:touch;
+	width: 100%;
+	height:100%;
+	min-height: 411px;
+	
+	background: #c5ccd4;
+	/*
+	background:#46aa46;
+	*/
+	padding-bottom: 50px;
+	position: absolute;
+	display: none;
+}
+section div{
+	padding: 0px 10px 0;
+}
+section h3{
+	color: #4C566C;
+	padding: 0px 10px 0;
+	text-shadow: 0 1px 0 #FFFFFF;
+	margin:5px 0px;
+}
+section h3 span{
+	display:inline-table;
+	padding:8px 3px;
+	vertical-align:top;
+}
+section div a{
+	color: #4C566C;
+	text-decoration:none;
+	display:inline-block;
+}
+section.aktiv{
+	display: block;
+}
+
+label{
+	display:inline-block;
+    color: #4C566C;
+    font-size: 17px;
+    margin:15px 0px 0px 0px;
+    padding: 0px 20px 0;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+h2 {
+	margin: 0;
+	padding: 20px 10px 0;
+	font-size: 22px;
+	/*
+	color: #ffffff;
+	font-weight:normal;
+	*/
+	color: #4c566c;
+	text-shadow: 0 1px 0 #fff;
+	
+}
+h2 a{
+	
+	text-decoration:none;
+	text-shadow: 0 1px 0 #fff;
+}
+h2 span{
+	display:inline-block;
+	vertical-align:top;
+	padding: 7px 7px;
+}
+h2 span a{
+	display:inline-block;
+	width:32px;
+	height:32px;
+	margin: -7px -7px;
+}
+
+button{
+	margin:5px 0px 0px 15px;
+}
+input{
+	border: 1px solid #A1A7AD;
+    color: #000000;/*#d7d7d7;*/
+    
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-shadow: 0 2px 2px rgba(217, 217, 217, 0.3); 
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    -webkit-transition: all 0.7s ease 0s;
+    -moz-transition: all 0.7s ease 0s;
+    -o-transition: all 0.7s ease 0s;
+    transition: all 0.7s ease 0s;
+}
+
+.versteckt {
+    display: none;
+}
+
+.iconBase{
+	display:inline-block;
+	background: url(../images/icon_menu.png) no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.iconBack{
+	background-position:-32px;
+}
+.iconPhone{
+	background-position:-64px;
+}
+.iconDeliver{
+	background-position:-96px;
+}
+.iconReceiver{
+	background-position:-128px;
+}
+.iconOn{
+	background-position:-160px;
+}
+.iconConfirm{
+	background-position:-192px;
+}
+.iconTraffic{
+	background-position:-224px;
+}
+.iconZoom{
+	background-position:-256px;
+}
+.iconZoom2Extent{
+	background-position:-288px;
+}
+.iconRoute{
+	background-position:-320px;
+}
+
+#login input {
+	/*border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-top-color: #e5e5e5;*/
+	width:80%;
+	display:block;
+	padding: 6px 5px 6px 15px;
+    margin:5px 0px 0px 15px;
+	
+}
+
+#loginbutton{
+	background: url(../images/icon_on32.png) no-repeat;
+	cursor:pointer;
+}
+/* Karte */
+#karte {
+    top: 0;
+    right: 0;
+    bottom: 49px;
+    left: 0;
+	background-image: url(../images/loader.gif);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.deliver{
+	text-shadow: 0 1px 0 #fff;
+}
+.deliver span{
+	display:inline-block;
+	
+}
+#delivery div{
+	
+}
+#stoptarget_adr{
+	
+	text-shadow: 0 1px 0 #fff;
+}
+#stopdelivered{
+	position:absolute;
+	right:10px;
+}
+#tourstop span a{
+	display:inline-block;
+}
+#pininput{
+	position:absolute;
+	padding:10px;
+	background-color:white;
+	top:50%;
+	left:50%;
+	margin-left:-100px;
+	margin-top:-70px;
+	width:220px;
+	height:140px;
+	opacity:0.8;
+	z-index:1001;
+	-webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px #000;
+    
+}
+#pininput div{
+	width:200px;
+	text-align:center;
+	padding-top:5px;
+	padding-bottom:5px;
+	font-size:14pt;
+	font-weight:bold;
+	
+}
+#pininput span{
+	display:block;
+	position:absolute;
+	right:5px;
+	top:3px;
+	font-size:12pt;
+	font-weight:bold;
+	color:silver;cursor:pointer;
+}
+#pininput span:hover{
+	color:black;
+	font-size:14pt;
+}
+#pininput input{
+	font-size:16pt;
+	width:210px;
+	margin-bottom:5px;
+	text-align: center;
+}
+#pininput a{
+	float:right;
+}
+.listInvisible{
+	display:none;
+}
+

@@ -1,0 +1,52 @@
+/* Toolbar */
+nav {
+	height: 49px;
+	background: #000 -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #000),
+		color-stop(0.02, #565656),
+		color-stop(0.04, #303030),
+		color-stop(0.5, #141414),
+		color-stop(0.51, #000)
+	);
+	display: -webkit-box;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+nav li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	-webkit-box-flex: 1;
+	display: -webkit-box;
+	width: 100px;
+}
+nav li a {
+	display: -webkit-box;
+	-webkit-box-flex: 1;
+	-webkit-box-pack: center;
+	border-radius: 3px;
+	margin: 3px 2px 2px 2px;
+	font-size: 9.5px;
+	font-weight: bold;
+	text-align: center;
+	color: #aaa;
+	text-decoration: none;
+	-webkit-box-align: end;
+	background-repeat: no-repeat;
+    background-position: center 3px;
+    background-size: 35px 25px;
+}
+nav li a.aktiv {
+	background-color: rgba(255,255,255,.15);
+	color: #fff;
+}
+a[href='#karte'] {
+    background-image: url(../images/nav/karte.png);
+}
+
+
