@@ -1,4 +1,4 @@
-var basePath="/DeliveryWeb";
+var basePath="http://85.214.93.186/DeliveryWeb";
 var base64Login=null;
 
 var vehicleActive=null;
