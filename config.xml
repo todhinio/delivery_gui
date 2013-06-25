@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <widget xmlns = "http://www.w3.org/ns/widgets"
+        xmlns:gap = "http://phonegap.com/ns/1.0"
+        id        = "com.phonegap.example"
+        versionCode="10" 
+        version   = "1.0.0">
+
+    <!-- versionCode is optional and Android only -->
+
+    <name>wiberry Fahrermodul</name>
+	<description>
+        App zur Auslieferung von Waren. 
+    </description>
+	<author href="http://www.peronne.de" email="torsten@peronne.de">
+        Torsten Peronne
+    </author>
+    <preference name="exit-on-suspend" value="false" />
+    <icon src="iamges/icon/icon-iphone.png" gap:platform="android" gap:density="ldpi" />
+
+</widget>
