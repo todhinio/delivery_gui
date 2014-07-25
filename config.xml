@@ -15,6 +15,6 @@
         Torsten Peronne
     </author>
     <preference name="exit-on-suspend" value="false" />
-    <icon src="iamges/icon/icon-iphone.png" gap:platform="android" gap:density="ldpi" />
+    <icon src="images/icon/icon-iphone.png" gap:platform="android" gap:density="ldpi" />
 
 </widget>
