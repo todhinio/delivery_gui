@@ -17,29 +17,33 @@
 
 		<link rel="apple-touch-startup-image" href="/images/icon/splash-ipad-portrait.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px)" />
 		<link rel="apple-touch-startup-image" href="/images/icon/splash-iphone.png" />
-
+		<script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 	</head>
 	<body>
 		
 		<section id="login">
-			<h2>Anmeldung</h2>
+			
+			<h2><span>Anmeldung</span></h2>
+			
 			<label for="username">Benutzername</label>
-			<input id="username" name="username" value="tomee" />
+			<input id="username" name="username" value="" />
 			<label for="password"  >Passwort</label>			
-			<input name="password"  value="tomee" />
-			<button class="iconBase iconOn" title="Anmelden" ><img src="images/icon_on_empty32.png" /></button>
+			<input name="password" type="password"  value="" />
+			<button id="btnLogin" class="btnDefault" title="Anmelden" >Anmelden</button>
+			
 		</section>
 		<section id="tourlist">
 			<h2>
-				<a href="#login" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Abmelden" /></a>
+				<a href="#login" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Abmelden" /></a>
 				<span>Meine Touren</span>
 			</h2>
 			<ul>
 			</ul>
 		</section>
 		<section id="vehicle">
-			<h2><a href="#tourlist"  class="iconBase iconBack" onclick="selectSection('tourlist')" ><img src="images/icon_on_empty32.png" title="Zur&uuml;ck" /></a>
-			Auswahl Auto
+			<h2>
+				<a href="#tourlist"  class="wiconBase wiconBack" onclick="selectSection('tourlist')" ><img src="images/icon_on_empty32.png" title="Zur&uuml;ck" /></a>
+				<span>Auswahl Auto</span>
 			</h2>
 			<ul>
 				<!-- Wird dynamisch befüllt -->
@@ -47,24 +51,36 @@
 		</section>
 		<section id="tour">
 			<h2>
-				<a href="#tourlist" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Meine Touren" /></a>
+				<a href="#tourlist" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Meine Touren" /></a>
 				<span>Tour</span>
+				
+				<a id="tourVehicle" class="wiHeaderDetail" href="javascript:activateVehicleSelect()"> </a>
+				
+				
+				<a id="tourcharge_link" href="javascript:loadTourCharge()"  ><img class="wiconHeader wiconBase32 iconGoods" src="images/icon_on_empty32.png" title="Beladung" /></a>
 			</h2>
-			<div class="deliver">
-				<a href="javascript:activateVehicleSelect()"></a>
-			</div>
+			
+			
 			<ul>
+			</ul>
+		</section>
+		<section id="tourcharge">
+			<h2>
+				<a href="#tour" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
+				<span>Tourware</span>
+			</h2>
+			<ul id="tourchargelist">
 			</ul>
 		</section>
 		<section id="tourstop">
 			<h2>
-				<a href="#tour" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
-				<span> Tourstop</span><span id="stoptarget"></span>
-				<span id="stopphone"></span>
+				<a href="#tour" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
+				<span> Tourstop</span>
+				<p id="stoptarget"  class="wiHeaderDetail" ></p>
+				<p id="stopphone"></p>
+				<p id="stoptarget_adr" style="display:none"></p>
 			</h2>
-			<div class="deliver" >
-				<span id="stoptarget_adr"></span>
-			</div>
+			
 			<form id="stop_form" name="stop_form">
 			<h3 id="stopgrouptitle"></h3>
 			<ul id="stoupgroup">
@@ -78,7 +94,7 @@
 		<!-- 
 		<section id="receive">
 			<h2>
-				<a href="#tourstop" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
+				<a href="#tourstop" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
 				<span>Ware abholen</span>
 				
 			</h2>
@@ -87,10 +103,13 @@
 		</section>-->
 		<section id="delivery">
 			<h2>
-				<a href="#tourstop" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
+				<a href="#tourstop" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tourstop" /></a>
 				<span>Auslieferung</span>
+				<p class="wiHeaderDetail" >Ware übergeben an</p>
 			</h2>
-			<div class="deliver" >Ware übergeben an</div>
+			<p>
+			<button onclick="sendDelivery()">Keiner da</button>
+			</p>
 			<ul>
 			</ul>
 			<!-- 
@@ -102,7 +121,7 @@
 		
 		<section id="karte">
 			<h2>
-				<a href="#tour" ><img class="iconBase iconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
+				<a href="#tour" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
 				<span> Karte</span>
 			</h2>
 			<a id="traffic" style="position:absolute;right:121px;top:20px" class="iconBase iconTraffic" href="javascript:toggleTrafficLayer()" title="Baustellen" ><img src="images/icon_on_empty32.png" /></a>
@@ -112,18 +131,24 @@
 			
 			<a id="routeloc" style="position:absolute;right:10px;top:20px" class="iconBase iconRoute" href="javascript:getRouteFromLocation()" title="Abholen" ><img src="images/icon_on_empty32.png" /></a>
 			<span id="loaderroute" style="position:absolute;right:10px;top:20px;display:none" ><img src="images/loader.gif" /></span>
+			
+			<div id="map" style="height:200px;width:auto"></div>
 			<div id="routesum" class="deliver" ></div>
+			<!-- 
 			<ul>
 				<li id="map" style="height:200px;width:auto"></li>
 			</ul>
+			 -->
 		</section>
-		
+		<div style="position:absolute" >
+			
+		</div>
 		<script src="javascript/jquery.min.js"></script>
 		<script src="javascript/jquery.base64.min.js"></script>
 		<!-- 
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpZZVAYAf6y6nO1IQGl4ICQb4eZJFksJM&sensor=false"></script>
 		 -->
-		<script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+		
 		<script src="javascript/delivery.js"></script>
 		<script src="javascript/mapext_google.js"></script>
 

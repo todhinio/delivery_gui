@@ -3,11 +3,15 @@
 /* Liste */
 ul {
 	padding: 0;
-	margin: 9px;
+	
+	margin: 3px;
+	
 	list-style: none;
 	border: 1px solid #a1a7ad;
+	/*
 	border-radius: 8px;
-	font-size: 19px;
+	*/
+	font-size: 16px;
 	font-weight: bold;
 	box-shadow: 0 1px 0 #fff;
 }
@@ -15,35 +19,55 @@ ul li {
 	background: #f7f7f7;
 	border-top: 1px solid #fdfdfd;
 	border-bottom: 1px solid #cacaca;
-	padding: 5px 10px;
+	padding: 3px 10px;
 	line-height: 34px;
+	
 }
 ul li:first-child {
+	/*
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
+	*/
 	border-top-color: #e5e5e5;
 }
 ul li:last-child {
+	/*
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
+	*/
 	border-bottom-width: 0;
 }
 ul li span {
 	float: right;
 	display: block;
+	padding-right:2px;
+	/*
 	color: #999;
+	*/
+	color:#624e43;
 	font-weight: normal;
 }
 ul li img {
 	float: right;
 	display: block;
+	/*
 	color: #999;
+	*/
+	color:#624e43;
 	font-weight: normal;
 }
 ul li input {
+	/*
+	 right:0px;
+	text-align:right;
+	
+	 */
 	float: right;
 	display: block;
+	/*
 	color: #999;
+	*/
+	color:#624e43;
 	font-weight: normal;
 	width:30px;
 	height:24px;
@@ -52,6 +76,20 @@ ul li input {
 ul li a{
 	text-decoration:none;
 	color:black;
+}
+
+ul li h4 span{
+	display:inline-block;
+	padding:0px 5px;
+	width:90px;
+}
+ul li h4 input{
+	float:right;
+}
+ul li h4 div{
+	display:inline-block;
+	width:400px;
+	height:30px
 }
 
 /* Übersicht Liste */
@@ -96,14 +134,18 @@ ul li a{
 	position: absolute;
     left: -9999px;
 }
+
 .iconCheckboxBase{
-	background-image: url('../images/icon_box_checkbox.png'); /* editor icons sprite image for the enabled state */
+	/*
+	background-image: url('../images/icon_box_checkbox.png');
+	*/ 
+	background-image: url('../images/wbaseicon32.png');
 	background-repeat: no-repeat;
 	width: 32px;
 	height: 32px;
 	text-align: center;
-	background-position:-64px;
+	background-position:-192px;
 }
 .iconCheckboxChecked{
-	background-position:-32px;
+	background-position:-96px;
 }

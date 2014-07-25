@@ -6,7 +6,7 @@ var mapMarkerTitleDefault="Aktuelle Position";
 var mapMarkerIconDefault=null;
 var lastLatlng=null;
 var markerOpts=[];
-var markerMyPosition=null; //Initiiertes Markerobjekt, das stŠndig aktualisiert wird
+var markerMyPosition=null; //Initiiertes Markerobjekt, das stï¿½ndig aktualisiert wird
 var trafficLayer = null;
 var zoomScaleMyPosition=15;
 
@@ -29,7 +29,7 @@ function initMap(latlng,zoom,mapType){
 	}
 	if(!latlng){
 		if(positionActicve){
-			console.info("Kein Latlng Ÿbergeben");
+			console.info("Kein Latlng Ã¼bergeben");
 			latlng=new google.maps.LatLng(positionActicve.lat,positionActicve.lng);
 			isActivePos=true;
 		}else{
@@ -38,14 +38,15 @@ function initMap(latlng,zoom,mapType){
 		}
 	}		
 	
-	width = document.getElementById('karte').offsetWidth-20;
-	height = document.getElementById('karte').offsetHeight-40;
+	width = document.getElementById('karte').offsetWidth;
+	height = document.getElementById('karte').offsetHeight;
 	var optionen = {
 		zoom: zoom,
 		center: latlng,
 		mapTypeId: mapType
 	};
-	var mapHeight=0,mapWidth=$("#karte").find('ul').css("width"), heightVal=$("#karte").css("height");
+	//var mapHeight=0,mapWidth=$("#karte").find('ul').css("width"), heightVal=$("#karte").css("height");
+	var mapHeight=0,mapWidth=$("#karte").css("width"), heightVal=$("#karte").css("height");
 	mapHeight=parseInt(heightVal.substring(0,heightVal.length-2));
 	
 	
@@ -275,14 +276,21 @@ var onPositionResponseForRoute=function(pos){
 		  	
 		  $('#routesum').html("Strecke: "+response.routes[0].legs[0].distance.text+"   Geplante Fahrtzeit: "+response.routes[0].legs[0].duration.text);
 	    if (status == google.maps.DirectionsStatus.OK) {
-	      	
-	      directionsDisplay.setDirections(response);
+	    	var steps=response.routes[0].legs[0].steps;
+	    	if(steps){
+	    		for(var s=0;s<steps.length;s++){
+	    			console.info("Step "+s,steps[s]);
+	    		}
+	    	}
+	      	directionsDisplay.setDirections(response);
 	    }
 
 	    
 	  });
 	
 };
+
+
 
 var onGeocodeResponse=function(resp){
 	var idx=null;

@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	font-family: Helvetica, sans-serif;
+	font-family: Arial,Helvetica, Verdana, sans-serif;
 }
 section {
     overflow: scroll;
@@ -8,11 +8,11 @@ section {
 	width: 100%;
 	height:100%;
 	min-height: 411px;
-	
-	background: #c5ccd4;
 	/*
-	background:#46aa46;
+	background: #c5ccd4;
 	*/
+	background:#fbf8f6;
+	
 	padding-bottom: 50px;
 	position: absolute;
 	display: none;
@@ -20,8 +20,14 @@ section {
 section div{
 	padding: 0px 10px 0;
 }
+.btnDefault{
+	
+}
 section h3{
+	/*
 	color: #4C566C;
+	*/
+	color:#624e43;
 	padding: 0px 10px 0;
 	text-shadow: 0 1px 0 #FFFFFF;
 	margin:5px 0px;
@@ -31,8 +37,11 @@ section h3 span{
 	padding:8px 3px;
 	vertical-align:top;
 }
+section h4{
+	margin:0px;
+}
 section div a{
-	color: #4C566C;
+	color:#624e43;
 	text-decoration:none;
 	display:inline-block;
 }
@@ -42,7 +51,7 @@ section.aktiv{
 
 label{
 	display:inline-block;
-    color: #4C566C;
+    color:#624e43;
     font-size: 17px;
     margin:15px 0px 0px 0px;
     padding: 0px 20px 0;
@@ -50,15 +59,29 @@ label{
 }
 
 h2 {
-	margin: 0;
-	padding: 20px 10px 0;
-	font-size: 22px;
+	background:transparent url("../images/icon_logo.png") no-repeat scroll left center;
+	background-size: 55px auto;
+	background-position:20px;
+	width:100%;
+	height:50px;
+	/*
+	padding: 10px 10px 0px 85px;
+	*/
+	margin:0px 40px 0px 0px;
+	font-size: 18px;
+	font-weight:normal;
 	/*
 	color: #ffffff;
 	font-weight:normal;
 	*/
-	color: #4c566c;
+	color:#624e43;
 	text-shadow: 0 1px 0 #fff;
+	border-bottom:1px solid gray;
+	
+	-webkit-box-shadow: 0px 3px 1px #888;
+	-moz-box-shadow: 0px 3px 1px #888;
+	box-shadow: 0px 3px 1px #888;
+	
 	
 }
 h2 a{
@@ -66,10 +89,21 @@ h2 a{
 	text-decoration:none;
 	text-shadow: 0 1px 0 #fff;
 }
+h2 p{
+	margin:0px;
+	padding:0px;
+}
 h2 span{
 	display:inline-block;
+	position:absolute;	
+	left:85px;
+	top:5px;
+	/*
 	vertical-align:top;
-	padding: 7px 7px;
+	padding: 4px 10px 0px 85px;
+	
+	
+	*/
 }
 h2 span a{
 	display:inline-block;
@@ -79,7 +113,15 @@ h2 span a{
 }
 
 button{
-	margin:5px 0px 0px 15px;
+	cursor:pointer;
+	color:#624e43;
+	border:1px solid #624e43;
+	 font-size: 16px;
+	background:none;
+	padding:5px 10px 5px 10px;
+}
+button:hover{
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
 }
 input{
 	border: 1px solid #A1A7AD;
@@ -103,23 +145,75 @@ input{
     display: none;
 }
 
+.wiconBase{
+	display:inline-block;
+	background: url(../images/wbasemenu.png) no-repeat;
+	width: 64px;
+	height: 64px;
+	cursor:pointer;
+}
+.wiconBack{
+	margin-top:5px;
+	background: url(../images/icon_back.png) no-repeat;
+	background-position:5px 5px;
+	width: 32px;
+	height:32px;
+	
+}
+.wiconHeader{
+	margin-top:8px;
+}
+.wiconBase32{
+	display:inline-block;
+	background: url(../images/wbaseicon32.png) no-repeat;
+	width: 32px;
+	height: 32px;
+	cursor:pointer;
+}
+.iconDeliver{
+	background-position:-32px;
+	
+}
+.iconChecked{
+	background-position:-96px;
+}
+.iconUnchecked{
+	background-position:-192px;
+}
+.wiHeaderTitle{
+	position:absolute;	
+	left:85px;
+	top:5px;
+}
+.wiHeaderDetail{
+	position:absolute;	
+	left:85px;
+	top:25px;
+	font-size:14px; 
+}
 .iconBase{
 	display:inline-block;
 	background: url(../images/icon_menu.png) no-repeat;
 	width: 32px;
 	height: 32px;
+	cursor:pointer;
 }
 .iconBack{
 	background-position:-32px;
+	
 }
 .iconPhone{
 	background-position:-64px;
 }
+/*
 .iconDeliver{
 	background-position:-96px;
-}
+}*/
 .iconReceiver{
+	/*
 	background-position:-128px;
+	*/
+	background-position:-64px;
 }
 .iconOn{
 	background-position:-160px;
@@ -138,6 +232,15 @@ input{
 }
 .iconRoute{
 	background-position:-320px;
+}
+.iconGoods{
+	background-position:-160px;
+	/*
+	background-position:-352px;
+	*/
+}
+.iconCancel{
+	background-position:-384px;
 }
 
 #login input {
@@ -165,11 +268,31 @@ input{
 	background-repeat: no-repeat;
 	background-position: center;
 }
+.edittype{
+	font-weight:normal;
+	width:370px;
+	cursor:pointer;
+}
+.edittypeTitle{
+	font-weight:bold;
+}
+.edittype:hover{
+	background-color:silver;
+}
+.edittypeList a{
+	float:right;
+}
 .deliver{
 	text-shadow: 0 1px 0 #fff;
+	height:32px;
 }
 .deliver span{
 	display:inline-block;
+	
+}
+#btnLogin{
+	margin:20px 0px 0px 15px;
+	
 	
 }
 #delivery div{
@@ -183,37 +306,56 @@ input{
 	position:absolute;
 	right:10px;
 }
+#tourcharge_link{
+	display:inline-block;
+	position:absolute;
+	right:10px;
+}
 #tourstop span a{
 	display:inline-block;
 }
-#pininput{
+#dialogFrame{
+	z-index:999;
+	position:absolute;
+	width:100%;
+	height:100%;
+	background-color:silver;
+	opacity:0.7;
+	left:0px;
+	top:0px;
+}
+#dialog{
 	position:absolute;
 	padding:10px;
 	background-color:white;
 	top:50%;
 	left:50%;
-	margin-left:-100px;
-	margin-top:-70px;
-	width:220px;
-	height:140px;
+	margin-left:-120px;
+	margin-top:-80px;
+	width:260px;
+	height:auto;
 	opacity:0.8;
 	z-index:1001;
+	/*
 	-webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    */
     box-shadow: 3px 3px 3px #000;
-    
+    color:#624e43;
+    padding:20px;
+    text-align:center;
 }
-#pininput div{
-	width:200px;
+#dialog div{
+	width:250px;
 	text-align:center;
 	padding-top:5px;
 	padding-bottom:5px;
 	font-size:14pt;
-	font-weight:bold;
+	
 	
 }
-#pininput span{
+#dialog span{
 	display:block;
 	position:absolute;
 	right:5px;
@@ -222,9 +364,12 @@ input{
 	font-weight:bold;
 	color:silver;cursor:pointer;
 }
-#pininput span:hover{
+#dialog span:hover{
 	color:black;
 	font-size:14pt;
+}
+#pininput{
+	font-weight:bold;	
 }
 #pininput input{
 	font-size:16pt;
@@ -234,6 +379,9 @@ input{
 }
 #pininput a{
 	float:right;
+}
+.tourstop_details{
+	font-size:10px;padding:0px;margin:0px;line-height:12px;
 }
 .listInvisible{
 	display:none;
