@@ -19,7 +19,7 @@ ul li {
 	background: #f7f7f7;
 	border-top: 1px solid #fdfdfd;
 	border-bottom: 1px solid #cacaca;
-	padding: 3px 10px;
+	padding: 3px 0px 0px 6px;
 	line-height: 34px;
 	
 }
@@ -81,7 +81,7 @@ ul li a{
 ul li h4 span{
 	display:inline-block;
 	padding:0px 5px;
-	width:90px;
+	
 }
 ul li h4 input{
 	float:right;
@@ -126,7 +126,16 @@ ul li h4 div{
 	display:inline-block;
 	padding-right:10px;
 }
-
+.wichargeitemsumbig{
+	position:relative;
+	margin-top:-7px;
+	width:90px;
+}
+.wichargeitemsumsmall{
+	position:relative;
+	width:48px;
+	margin-top:-7px;
+}
 .delivered{
 	opacity:0.6;
 }

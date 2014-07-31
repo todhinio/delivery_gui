@@ -1,4 +1,4 @@
-var basePath="https://www.wiberry.de/widriver";
+var basePath="/widriver";//"http://85.214.93.186/DeliveryWeb";
 
 var base64Login=null;
 
@@ -18,7 +18,7 @@ var deliveryLink="";
 var goodsNode="";
 var inputRequiredValue=" XX ";
 
-var sendCoordIntervall=20000;
+var sendCoordIntervall=30000;
 var isWriteCoords=false;
 var doCheckTourstop=true;
 var loadingNode=null;
@@ -28,10 +28,17 @@ var _packEdited=null;
 var _origPackvalue=0;
 
 var isReceiver=false;
-
+var username="";
+var userid="";
 var _deliveryList=[];
 var tourstopGoods=null;
 var mapIconUrl="http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=$|FF0000|000000";
+var hasSecondQuery=false;
+var stopAcceptor=null;
+var errorList=[];
+var activeTaskId=null;
+errorList[517]="Es kann nicht nur ein Teil des Paketes ausgeliefert werden, da sich kein anderes Paket mit gleichen Produkt am Standort befindet, in dem das Produkt überführt werden kann!";
+errorList[539]="Die Mengen, die Du abholen möchtest, dürften sich gar nicht am Stand befinden";
 
 //Standard Karten implemtierung
 function initMap(coord){}
@@ -50,7 +57,7 @@ function zoomToAll(){}
 //ENDE Standard Karten implemtierung
 
 function selectAllInput(){
-	console.info("OLE",this);
+	
 	var save_this = $(this);
     window.setTimeout (function(){ 
        save_this.select(); 
@@ -75,11 +82,28 @@ var onCoordsDefinedForTour=function(position){
 
 var onDeliveryResponse=function(data){
 	if(data.simpleResponse.status==200){
-		selectSection('tour');
-		loadTourstop(tourActive,/*onTourstopUpdated*/onTourstopResponse);
+		if(deliveryLink.indexOf("shifttransfer")>-1){
+			console.info("FIND "+activeTaskId,$(activeTaskId));
+			$(activeTaskId).attr('checked',true);
+			selectSection('tourstop');
+		}else{
+			selectSection('tour');
+			if(tourstopActive.type==3 && !hasSecondQuery){
+				if(deliveryLink.indexOf("receive")>-1){
+					_validateDelivery("iconDeliver");
+				}else{
+					_validateDelivery("iconReceive");
+				}
+			}else{
+				hasSecondQuery=false;
+				loadTourstop(tourActive,/*onTourstopUpdated*/onTourstopResponse);
+			}
+		}
 	}else{
 		console.info("ERROR",data);
-		writeError(data.simpleResponse.message);
+		hasSecondQuery=false;
+		writeStatusError(data.simpleResponse);
+		
 	}
 };
 
@@ -123,6 +147,7 @@ var onTourChargeResponse=function(json){
 		$(loadingNode).remove();
 	}
 	//console.info("WARE TOUR ",json);
+	
 	writePackDataInList(json,$('#tourcharge').find('#tourchargelist'),false,true,true);
 };
 
@@ -206,7 +231,15 @@ var onTourstopChargeResponse=function(json){
 	if(loadingNode){
 		$(loadingNode).remove();
 	}
-	writePackDataInList(json,$('#tourstop').find('#stoupgroup'),false,false,true);
+	if(tourstopActive.type!=3){
+		writePackDataInList(json,$('#tourstop').find('#stoupgroup'),false,false,true);
+	}else{
+		writePackDataInList(json,$('#tourstop').find('#stoupgroup'),false,false,true);
+		
+		
+		writePackDataInList(json,$('#tourstop').find('#receive'),false,false,true);
+		//alert("ANDERS");
+	}
 };
 //Nachdem aus oder eingeladen wurde (Veränderung der Toruladung)
 var onTourstopUpdated=function(json){
@@ -229,7 +262,11 @@ var onTourstopSellerResponse=function(json){
 			//Fahrer hinzuf�gen
 			//$('#delivery').find('ul').append(_writeListElemPerson(tourActive.driver));
 			$.each(json.simpleuser, function(idx, daten){
-				$('#delivery').find('ul').append(_writeListElemPerson(daten)/*'<li><a href="javascript:void(0);" onclick="selectConfirmedEmployeeFromA(this)" >'+daten.employee.person.prename +' '+daten.employee.person.lastname+'</a><input name="employee" class="checkboxHidden" type="checkbox" value="'+daten.employee.person.id+'" /><span><img class="iconCheckboxBase" src="'+imageIconBase+'" /></span></li>'*/);
+				if(daten.username && daten.username.toUpperCase()==username.toUpperCase()){
+					userid=daten.id;
+				}else{
+					$('#delivery').find('ul').append(_writeListElemPerson(daten)/*'<li><a href="javascript:void(0);" onclick="selectConfirmedEmployeeFromA(this)" >'+daten.employee.person.prename +' '+daten.employee.person.lastname+'</a><input name="employee" class="checkboxHidden" type="checkbox" value="'+daten.employee.person.id+'" /><span><img class="iconCheckboxBase" src="'+imageIconBase+'" /></span></li>'*/);
+				}
 			});
 		}else if(tourstopActive){
 			loadEmployeeFromLocation(tourstopActive.target);	
@@ -238,6 +275,7 @@ var onTourstopSellerResponse=function(json){
 };
 //Wenn waren abgeholte werden sollen
 var onTourstopReceiveResponse=function(json){
+	
 	if(tourstopActive.type==4){
 		writePackDataInList(json,$('#tourstop').find('#receive'),true,false,true,true);
 	}else{
@@ -258,7 +296,7 @@ function _writeListElemPerson(person){
 	return '<li><a href="javascript:void(0);" onclick="selectConfirmedEmployeeFromA(this)" >'+label+'</a><input name="employee" class="checkboxHidden" type="checkbox" value="'+personId+'" /><span><img class="iconCheckboxBase" src="'+imageIconBase+'" /></span></li>';
 }
 var onEmployeeLocationResponse=function(json){
-	console.info("EMPLOYEE",json);
+	//console.info("EMPLOYEE",json);
 	if(json.simpleuser){
 		$('#delivery li').remove();
 		//Fahrer hinzuf�gen
@@ -313,28 +351,141 @@ function activateVehicleSelect(){
 	selectSection('vehicle');
 }
 
+function checkItemSum(cB,_deliveryList){
+	var sumB=0,sumS=0,pu=0;
+	if(!_deliveryList){
+		_deliveryList=[];
+	}
+	$.each($(cB).parent().find("input[type=text]"), function(idx, a){
+		console.info("FOUND "+idx,a);
+		if(a.name=="stop_productunit"){
+			pu=a.value;
+		}else if(a.name=="stop_productsumbig"){
+			sumB=a.value;
+		}else if(a.name=="stop_productsumsmall"){
+			sumS=a.value;
+		}
+	});
+	
+	var sm=sumProductPacksFromTourstop(tourstopGoods,$(cB).parent().find("input[type=checkbox]").val());
+	var packVal=sm-((sumB>0) ? (parseFloat((sumB*pu))+parseFloat(sumS)) : sumS);
+	
+	if(packVal>=0){
+		hideInputError($(cB).parent());
+		$.each($(cB).parent().parent().find('ul').find("input[type=checkbox]"), function(idx, sB){
+			var pck=getTourstopPackById(tourstopGoods,sB.value);
+			if(pck){
+				var vS=0;
+				
+				var edit_type="1";
+				if(pck.isPart){
+					edit_type="3";
+				}
+				//console.info("		WERT von "+packVal+" -> "+(packVal-pck.quantity));
+				if(pck.quantity<=packVal && packVal>0){
+					packVal=packVal-pck.quantity;
+				}else if(pck.quantity >packVal &&packVal>0){
+					vS=pck.quantity-packVal;
+					packVal=0;
+				}else{
+					vS=pck.quantity;
+				}
+				$(sB).parent().find("input[type=text]").val(vS);
+				_deliveryList.push({"id":sB.value,"quantity":vS,"type":edit_type});
+			}
+			//console.info("SEARCH PACK "+sB.value,getTourstopPackById(tourstopGoods,sB.value));
+			//console.info("->HAS",sB);	
+		});
+	}else{
+		showInputError($(cB).parent());
+		writeError("Die EIngabe ist nicht korrekt.<br/> Es können nicht mehr Mengen abgeholt als hingeliefert werden werden!");
+	}
+	return _deliveryList;
+	
+}
+
+function showInputError(node){
+	$(node).find("input[type=text]").css("background-color","#f1b9b9");
+}
+function hideInputError(node){
+	$(node).find("input[type=text]").css("background-color","white");
+}
+
+function createDeliverLink(){
+	
+}
+function sendShiftTransfer(){
+	_validateDelivery('iconTransfer');
+}
+
+
 function validateDelivery(delNode){
 	var linkClassName = $(delNode).attr('class');
+	_validateDelivery(linkClassName,delNode);
+}
+
+function sendGoodsSubmit(){
+	if(tourstopActive.type==1 || tourstopActive.type==3){
+		_validateDelivery('iconDeliver',true);
+	}else if(isReceiver){
+		_validateDelivery('iconReceive',true);
+	}else{
+		alert("FEHLER");
+	}
+}
+
+function _validateDelivery(linkClassName,delNode){
+	
 	//Wenn ein Halken gesetzt wurde
+	
+	var gN=[];
 	if(linkClassName.indexOf('iconDeliver')>-1){
 		deliveryLink=basePath+'/rest/driverservice/location/'+tourstopActive.target.id+'/delivery?='+Date.now();
 		goodsNode="#stoupgroup";
+		gN.push(goodsNode);
 		
-		//Überprüft, ob alles ausgeliefert wurde
-		
-	}else{
+		gN=["#stoupgroup","#task"];
+	}
+	if(linkClassName.indexOf('iconReceive')>-1){
 		//Bei Zurücknahme in das Auto hat der Fahrer zur Zeit noch Wahlfreiheit
 		deliveryLink=basePath+'/rest/driverservice/tourstop/'+tourstopActive.target.id+'/receive?='+Date.now();
 		goodsNode="#receive";
-		
+		//gN.push(goodsNode);
+		gN=["#receive","#task"];
+	}
+	if(linkClassName.indexOf('iconTransfer')>-1){
+		//Bei Zurücknahme in das Auto hat der Fahrer zur Zeit noch Wahlfreiheit
+		deliveryLink=basePath+'/rest/driverservice/tourstop/'+tourstopActive.target.id+'/shifttransfer?='+Date.now();
+		goodsNode="#tasktransfer";
+		gN.push(goodsNode);
 	}
 	
-	var n1 = $(goodsNode).find("input:checkbox:not(:checked)" );
-	if(n1.length>0){
+	if(tourstopActive.type==3){
+		gN=["#receive","#stoupgroup","#task"];
+	}
+	var g=null,cnt=0;
+	for(g in gN){
+		var n1 = $(gN[g]).find("input:checkbox:not(:checked)" );
+		if(n1.length>0){
+			$.each(n1, function(idx, nC){
+				$(nC).parent().css("backgroundColor","red");
+			});
+			
+		}else{
+			var n2 = $(gN[g]).find("input:checked");
+			$.each(n2, function(idx, iC){
+				$(iC).parent().css("backgroundColor","white");
+			});
+		}
+		cnt+=n1.length;	
+	}
+	
+	
+	//var n1 = $(goodsNode).find("input:checkbox:not(:checked)" );
+	if(cnt>0){
 		getDialog("Du mu&#223;t alle Waren ausliefern. Wenn Waren nicht vorhanden oder ver&#228;ndert vorliegen &#228;ndere bitte einfach den Mengenwert.<br/> Dr&#252;cke hierzu einfach auf die Zahl und trage den richtigen Wert ein.</br><button onclick=\"closeDialog()\" >Ok</button></a>");
 		return false;
 	}
-	
 	
 	
 	
@@ -419,7 +570,13 @@ function validateDelivery(delNode){
 		writeError("Zum Übergeben der Ware muss sie rechts angehakt werden!");
 	}else if(!hasError){
 		console.info("LÜBBT",_deliveryList);
-		showDelivery(delNode);
+		if(delNode){
+			stopAcceptor=null;
+			showDelivery(delNode);
+		}else{
+			hasSecondQuery=true;
+			sendDelivery(null,true);
+		}
 		
 	}else{
 		writeError("Bitte vollständig ausfüllen");
@@ -477,21 +634,27 @@ function validateProductValue(packVal,inputRequiredValue){
 }
 
 //Auslieferung der Ware
-function sendDelivery(){
+function sendDelivery(item,hideAcceptorSelect){
 	
-	
+		console.info("ITEM",item);	
 	
 	
 		if(tourstopActive){
 			if(_deliveryList.length>0){
 				
 				//Bestätigt durch
-				var stopAcceptor=null;
-				var acc = $("#delivery").find("input:checked" );
 				
-				$.each(acc, function(idx, a){
-					stopAcceptor=a.value;
-				});
+				if(!item,hideAcceptorSelect){
+					if(!hideAcceptorSelect){
+						var acc = $("#delivery").find("input:checked");
+					
+						$.each(acc, function(idx, a){
+							stopAcceptor=a.value;
+						});
+					}
+				}else{
+					stopAcceptor=null;
+				}
 				console.info("Acceptor",stopAcceptor);
 				
 				var _tmpDelivery={
@@ -505,8 +668,10 @@ function sendDelivery(){
 					if(acceptorPin){
 						_tmpDelivery.simpledelivery.password=""+acceptorPin;
 					}
+				}else{
+					_tmpDelivery.simpledelivery.acceptor=userid;
 				}
-				console.info('SEND TO '+basePath+'/location/'+tourstopActive.target.id+'/delivery',_tmpDelivery);
+				//console.info('SEND TO '+basePath+'/location/'+tourstopActive.target.id+'/delivery',_tmpDelivery);
 				sendJsonRequest(deliveryLink,onDeliveryResponse,null,"POST",JSON.stringify(_tmpDelivery));
 				acceptorPin=null;
 			}else{
@@ -602,6 +767,20 @@ function writeError(message, status){
 	getDialog(message,'body');
 	//alert(message);
 }
+function writeStatusError(errorMsg){
+	var status=0;
+	var message=null;
+	if(errorMsg.status){
+		status=errorMsg.status;
+	}
+	
+	message=errorList[status] || "Es ist ein unbekannter Fehler aufgetreten";
+		
+	
+	
+	getDialog(message,'body');
+	
+}
 /*Liste der Autos laden*/
 function showTourstop(stopIndex){
 	var _ts=tourStop[stopIndex];
@@ -618,6 +797,7 @@ function showTourstop(stopIndex){
 	
 	$('#receive li').remove();
 	$('#stoupgroup li').remove();
+	$('#task li').remove();
 	
 	if(tourstopActive.type==4){
 		loadTourstopReceive(tourstopActive);
@@ -633,14 +813,17 @@ function showTourstop(stopIndex){
 	$('#stopgrouptitle a').remove();
 	$('#receivetitle span').remove();
 	$('#receivetitle a').remove();
+	
+	/*
 	if(tourstopActive.type==1 || tourstopActive.type==3){
 		$('#stopgrouptitle').append('<a class="wiconBase32 iconDeliver" href="javascript:void(0)" onclick="validateDelivery(this)" title="Ausliefern" ><img src="images/icon_on_empty32.png" /></a>');
 		$('#stopgrouptitle').append('<span> Auslieferung <span>');
 	}
+	
 	if(tourstopActive.type==2 || tourstopActive.type==3 || tourstopActive.type==4){
 		$('#receivetitle').append('<a class="wiconBase32 iconReceiver" href="javascript:void(0)" onclick="validateDelivery(this)"  title="Abholen" ><img src="images/icon_on_empty32.png" /> </a>');
 		$('#receivetitle').append('<span> Ware abholen<span>');
-	}
+	}*/
 	
 	$('#stoptarget').html(_ts.target.title);
 	if($('#stopphone a')){
@@ -663,44 +846,59 @@ function showTourstop(stopIndex){
 }
 
 function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInput){
+	
 	tourstopGoods=inCharge;
 	var stopView={};
+	var hasData=false;
 	var packList=[];
 	var partList=[];
 	var orderList=[];
+	var taskList=[];
+	var jobList=[];
 	
 	isReceiver=false;
 	if(node.attr('id')=='receive'){
 		isReceiver=true;
 	}
-	if(isReceiver){
+	if(isReceiver && tourstopActive.type<4){
 		if(inCharge.charge.job && !isArray(inCharge.charge.job)){
 			packList.push(inCharge.charge.job);
 		}else if(inCharge.charge.job){
 			packList=inCharge.charge.job;
 		}
+		
+	}else{
+		//console.info("Charge:"+isReceiver,inCharge);
+		if(inCharge.charge.goods && !isArray(inCharge.charge.goods)){
+			packList.push(inCharge.charge.goods);
+		}else if(inCharge.charge.goods){
+			packList=inCharge.charge.goods;
+		}
+		
+		if(inCharge.charge.part && !isArray(inCharge.charge.part)){
+			partList.push(inCharge.charge.part);
+		}else if(inCharge.charge.part){
+			partList=inCharge.charge.part;
+		}
+		
+		//Vorbestellungen
+		if(inCharge.charge.order && !isArray(inCharge.charge.order)){
+			orderList.push(inCharge.charge.order);
+		}else if(inCharge.charge.order){
+			orderList=inCharge.charge.order;
+		}
 	}
-	//console.info("Charge:"+isReceiver,inCharge);
 	
-	if(inCharge.charge.goods && !isArray(inCharge.charge.goods)){
-		packList.push(inCharge.charge.goods);
-	}else if(inCharge.charge.goods){
-		packList=inCharge.charge.goods;
+	if(inCharge.charge.task && !isArray(inCharge.charge.task)){
+			taskList.push(inCharge.charge.task);
+		}else if(inCharge.charge.task){
+			taskList=inCharge.charge.task;
+		}
+	
+	if(packList.length>0||orderList.length>0||partList.length>0){
+		hasData=true;
 	}
-	
-	if(inCharge.charge.part && !isArray(inCharge.charge.part)){
-		partList.push(inCharge.charge.part);
-	}else if(inCharge.charge.part){
-		partList=inCharge.charge.part;
-	}
-	
-	//Vorbestellungen
-	if(inCharge.charge.order && !isArray(inCharge.charge.order)){
-		orderList.push(inCharge.charge.order);
-	}else if(inCharge.charge.order){
-		orderList=inCharge.charge.order;
-	}
-	
+	console.info(hasData+" HAS DATA IN ",node);
 	//Vorbestellungen
 	$.each(orderList, function(idx, daten){
 		orderOrderToProductgroup(stopView,daten);
@@ -710,6 +908,11 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 	$.each(packList, function(idx, daten){
 		orderPackToProductgroup(stopView,(daten.pack || daten.job) ? daten : daten.charge);
 	});
+	//Jobs
+	/*
+	$.each(jobList, function(idx, daten){
+		orderPackToProductgroup(stopView,(daten.pack || daten.job) ? daten : daten.charge);
+	});*/
 	//Packparts
 	$.each(partList, function(idx, daten){
 		daten.isPart=true;
@@ -717,7 +920,19 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 	});
 	
 	var pg=null;
-	
+	if(hasData){
+		if(isReceiver){
+			if(tourstopActive.type==2 || tourstopActive.type==3 || tourstopActive.type==4){
+				$('#receivetitle').append('<a class="wiconBase32 iconReceiver" href="javascript:void(0)" onclick="validateDelivery(this)"  title="Abholen" ><img src="images/icon_on_empty32.png" /> </a>');
+				$('#receivetitle').append('<span> Ware abholen<span>');
+			}
+		}else{
+			if(tourstopActive.type==1 || tourstopActive.type==3){
+				$('#stopgrouptitle').append('<a class="wiconBase32 iconDeliver" href="javascript:void(0)" onclick="validateDelivery(this)" title="Ausliefern" ><img src="images/icon_on_empty32.png" /></a>');
+				$('#stopgrouptitle').append('<span> Auslieferung <span>');
+			}
+		}
+	}
 	for(pg in productGroup){
 		var _g=productGroup[pg];
 		if(stopView[""+_g.id]){
@@ -762,7 +977,7 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 						}*/
 						//console.info("Item",item);
 						//var selectHtml='<img class="iconCheckboxBase" src="'+imageIconBase+'" /><input class="checkboxHidden" type="checkbox" value="'+item.id+'" name="stop_pack" /><span> '+unitText+'</span><input onfocus="selectInput(this)"  style="display:none" type="text" onblur="checkPackValue(this)" name="quantity" value="'+itemValue+'" ><input type="hidden" name="edit_type" value="'+edit_type+'" ><span name="quantity_view" onmousedown="togglePackQuantityInput(this)">'+itemDefault+' '+itemValue+'</span>';
-						var selectHtml='<img class="iconCheckboxBase" src="'+imageIconBase+'" /><input class="checkboxHidden" type="checkbox" value="'+item.id+'" name="stop_pack" /><span> '+unitText+'</span><input onfocus="selectInput(this)"  style="display:inline-block" type="text" onblur="checkPackValue(this)" name="quantity" value="'+itemValue+'" ><input type="hidden" name="edit_type" value="'+edit_type+'" ><span style="display:none" name="quantity_view" onmousedown="togglePackQuantityInput(this)">'+itemDefault+' '+itemValue+'</span>';
+						var selectHtml='<img class="iconCheckboxBase" src="'+imageIconBase+'" /><input class="checkboxHidden" type="checkbox" value="'+item.id+'" name="stop_pack" /><span> '+unitText+'</span><input  onchange="togglePackQuantityInput(this)"  style="display:inline-block" type="text" onblur="checkPackValue(this)" name="quantity" value="'+itemValue+'" ><input type="hidden" name="edit_type" value="'+edit_type+'" ><span style="display:none" name="quantity_view" onmousedown="togglePackQuantityInput(this)">'+itemDefault+' '+itemValue+'</span>';//<span class="wiconBase32 iconTrash" ></span>';
 						/*if(sumInput){
 							selectHtml='';
 						}
@@ -775,7 +990,7 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 								packUnit=elem.product.packageunit;
 								
 								console.info("Product",elem.product);
-								prdListElem=''+elem.product.title+'<img class="iconCheckboxBase" src="'+imageIconBase+'" /><input class="checkboxHidden" type="checkbox" value="'+elem.product.id+'" name="stop_pack" /><input class="checkboxHidden" name="stop_productunit" type="text" value="'+packUnit+'"><span> '+unitText+'</span><input name="stop_productsumsmall" type="text" value="@"><span style="position:relative"> Kiste(n) und <p style="position:absolute;top:6px;font-size:10px">(a '+packUnit+' '+unitText+')</p>  </span><input name="stop_productsumbig" type="text" value="§"> ';
+								prdListElem=''+elem.product.title+'<img class="iconCheckboxBase" src="'+imageIconBase+'" /><input class="checkboxHidden" type="checkbox" value="'+elem.product.id+'" name="stop_pack" /><input class="checkboxHidden" name="stop_productunit" type="text" value="'+packUnit+'"><span class="wichargeitemsumsmall"> '+unitText+'</span><input onchange="checkItemSum(this)" name="stop_productsumsmall" type="text" value="@"><span class="wichargeitemsumbig"> Kiste(n) und <p style="position:absolute;top:6px;font-size:10px">(a '+packUnit+' '+unitText+')</p>  </span><input name="stop_productsumbig" onchange="checkItemSum(this)" type="text" value="§"> ';
 								//prdListElem=''+elem.product.title+'<span> '+unitText+'</span><span name="quantity_view" >@</span>';
 							}else if(doSum /*&& hideSelect*/){
 								prdListElem=''+elem.product.title+'<span> '+unitText+'</span><span name="quantity_view" >@</span>';
@@ -786,15 +1001,18 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 				});
 				if(doSum){
 					var restSum=sum;
-					var sumKiste=0;
+					var sumKiste=0, onclckEvt="";
 					
 					if(sum>=packUnit&& sumInput){
 						restSum = sum % packUnit;
 						sumKiste=(sum-restSum)/packUnit;
 					}else{
 						sumKiste=0;
+						onclckEvt="onclick=\"toggleProductDetails(this)\"";
 					}
-					prdListElem='<li><h4 onclick="toggleProductDetails(this)">'+prdListElem+'</h4><ul style="display:none">'+prdListElemItem+'</ul></li>';
+					
+					
+					prdListElem='<li><h4 '+onclckEvt+' >'+prdListElem+'</h4><ul style="display:none">'+prdListElemItem+'</ul></li>';
 					prdListElem=prdListElem.replace(/@/,''+restSum);
 					prdListElem=prdListElem.replace(/§/,''+sumKiste);
 				}else{
@@ -810,7 +1028,10 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 			}
 			node.append('<li><a href="#'+elem.name+'" >'+elem.name+'</a>'+groupSelectHtml+prdList+'</li>');
 		}
+		
+		
 	}
+	
 	if(stopView["order"]){
 		var orderList='<ul class="listVisible">';
 		for(pg in stopView["order"]){
@@ -839,6 +1060,40 @@ function writePackDataInList(inCharge,node,inputRequired,hideSelect,doSum,sumInp
 		node.append('<li><a href="#Vorbestellungen" >Vorbestellungen</a>'+groupSelectHtml+orderList+'</li>');
 	}
 	
+	$(node).parent().find('#stopgrouptask span').remove();
+	$(node).parent().find('#stopgrouptask a').remove();
+	$(node).parent().find('#task li').remove();
+	
+	if(taskList.length>0 && $(node).parent().find('#task')){
+			
+			var t=null;
+			
+			$(node).parent().find('#stopgrouptask').append('<a class="wiconBase32 iconDeliver" href="javascript:void(0)" title="Aufgaben" ><img src="images/icon_on_empty32.png" /></a>');
+			$(node).parent().find('#stopgrouptask').append('<span> Aufgaben <span>');
+			for(t in taskList){
+				//console.info("TASK",taskList[t]);
+				
+				var iconClick="<img class=\"iconCheckboxBase\" src=\""+imageIconBase+"\" /><input id=\"task"+taskList[t].id+"\" class=\"checkboxHidden\" type=\"checkbox\" value=\"0\" name=\"task_check\" />";
+				var liClick="";
+				if(taskList[t].description.indexOf("Lieferschein")>-1){
+					iconClick="<input id=\"task"+taskList[t].id+"\" class=\"checkboxHidden\" type=\"checkbox\" value=\"1\" name=\"task_check\" />";
+					liClick="onclick=\"showTaskDetail("+taskList[t].id+","+taskList[t].tasktype.externalId+")\" ";
+				}
+				$(node).parent().find('#task').append("<li "+liClick+" >"+iconClick+taskList[t].description+"</li>");
+				
+			}
+	}
+	
+}
+function showTaskDetail(taskId,taskType){
+	console.info("Task "+taskId+" type "+taskType);
+	activeTaskId="#task"+taskId;
+	$('#tasktransfer li').remove();
+	loadTourstopReceive(tourstopActive, onTourstopBill);
+	selectSection('tourtask');
+}
+function onTourstopBill(json){
+	writePackDataInList(json,$('#tourtask').find('#tasktransfer'),true,false,true,true);	
 }
 function selectInput(iNode){
 	console.info("Node",iNode);
@@ -989,15 +1244,15 @@ function togglePackQuantityInput(node){
 			return false;
 		}
 	}	
-		$(node).css('display','none');
+		//$(node).css('display','none');
 		
 		var inputNode=$(node).parent().find('input[type=text]');
 		
-		inputNode.css('display','block');
+		//inputNode.css('display','block');
 		_origPackvalue=inputNode.val()*1;
 		_packEdited=node;
 		
-		//inputNode.select();
+		inputNode.select();
 		//console.info("input ",inputNode[0]);
 		
 		//inputNode[0].select();
@@ -1058,12 +1313,12 @@ function checkPackValue(node/*,receiveDelivery*/){
 }
 function setPackView(node,value){
 	
-	$(node).css('display','none');
+	//$(node).css('display','none');
 	togglePackCheckBox($(node).parent().find('img'),'iconCheckboxChecked');
 	$.each($(node).parent().find('span'), function(idx, sNode){
 		if($(sNode).attr('name')=="quantity_view"){
 			$(sNode).html(value);
-			$(sNode).css('display','inline');
+			//$(sNode).css('display','inline');
 		}
 	});
 }
@@ -1163,8 +1418,11 @@ function loadTourstopSeller(tourstop,onResponseEvent){
 	}
 	sendJsonRequest(basePath+'/rest/driverservice/tourstop/'+tourstop.id+'/seller?='+Date.now(),onResponseEvent);
 }
-function loadTourstopReceive(tourstop){
-	sendJsonRequest(basePath+'/rest/driverservice/tourstop/'+tourstop.id+'/goods2receive?='+Date.now(),onTourstopReceiveResponse);
+function loadTourstopReceive(tourstop,onResultEvt){
+	if(!onResultEvt){
+		onResultEvt=onTourstopReceiveResponse;
+	}
+	sendJsonRequest(basePath+'/rest/driverservice/tourstop/'+tourstop.id+'/goods2receive?='+Date.now(),onResultEvt);
 }
 
 function loadEmployeeFromLocation(location,onResponseEvent){
@@ -1205,6 +1463,12 @@ function sendJsonRequest(reqUrl,onSuccess,onError,method,data){
 			}
 			if(xhr.status == 401 || xhr.status == 403){
 				writeError("Anmeldung nicht erfolgreich",xhr.status);
+			}else if(xhr.status == 503){
+				selectSection('login');
+				writeError("Zur Zeit kann keine Verbindung zum Server hergestellt werden!");
+			}else if(xhr.status == 500){
+				selectSection('login');
+				writeError("Die Verbindung wurde unerwartet unterbrochen. Bitte melde Dich erneut an!");
 			}else{
 				writeError("Error response "+textStatus,xhr.status);
 			}
@@ -1217,7 +1481,7 @@ function sendJsonRequest(reqUrl,onSuccess,onError,method,data){
 	var reqParams={
 	    type: method,
 	    url: reqUrl,
-	    contentType: "application/json; charset=utf-8",
+	    contentType:"application/json;charset=utf-8",
 	    dataType: "json",
 	    headers:{"Authorization":"Basic "+base64Login},
 	    /*statusCode: {
@@ -1299,7 +1563,7 @@ $("#delivery").delegate("img", "click", function() {
 });
 
 /*Auswahl welche Waren ausgeliefert werden sollen */
-$("#stoupgroup,#receive").delegate("img", "click", function() {
+$("#stoupgroup,#receive,#task,#tasktransfer").delegate("img", "click", function() {
 	
 	//console.log("Click Img PARENT INPUT",_p);
 	$(this).toggleClass('iconCheckboxChecked');
@@ -1308,7 +1572,7 @@ $("#stoupgroup,#receive").delegate("img", "click", function() {
 	
 });
 
-$("#stoupgroup,#receive").delegate("li>a", "click", function() {
+$("#stoupgroup,#receive","#tasktransfer").delegate("li>a", "click", function() {
 	$(this).parent().children("ul").toggleClass("listInvisible");
 });
 
@@ -1335,10 +1599,11 @@ $("#receive").delegate('input','click',function() {
 /* Anmeldung */
 $('#login :button').on('click',function(){
 	//alert("login:");
-	var username="",password="";
+	var password="";
+	username="";
 	$.each($('#login input'), function(idx, data){
 		if(data.name=="username"){
-			username=data.value;
+			username=""+data.value;
 			createCookie("username",username);
 		}
 		if(data.name=="password"){
@@ -1372,10 +1637,16 @@ $(function(){
 		}
 		if(data.name=="password"){
 			data.value=readCookie("password") || "";
+			if(username && data.value!=""){
+				console.info("MELDE AN "+username+":"+data.value);
+				base64Login=$.base64.encode(username+":"+data.value);
+				loadTourlist();
+			}		
 		}
 	});
 	
     $('a[href=#login], #login').addClass("aktiv");
+    
     //loadTour();
 });
 function createLoader(node){

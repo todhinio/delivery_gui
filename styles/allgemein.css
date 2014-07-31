@@ -180,6 +180,9 @@ input{
 .iconUnchecked{
 	background-position:-192px;
 }
+.iconTrash{
+	background-position:-224px;
+}
 .wiHeaderTitle{
 	position:absolute;	
 	left:85px;
@@ -238,6 +241,9 @@ input{
 	/*
 	background-position:-352px;
 	*/
+}
+.iconVehicle{
+	background-position:-128px;
 }
 .iconCancel{
 	background-position:-384px;
@@ -307,6 +313,16 @@ input{
 	right:10px;
 }
 #tourcharge_link{
+	display:inline-block;
+	position:absolute;
+	right:10px;
+}
+#tourvehicle_link{
+	display:inline-block;
+	position:absolute;
+	right:48px;
+}
+#transfer_link{
 	display:inline-block;
 	position:absolute;
 	right:10px;
