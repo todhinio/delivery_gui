@@ -1,4 +1,4 @@
-var basePath="/widriver";//"http://85.214.93.186/DeliveryWeb";
+var basePath="https://www.wiberry.de/widriver";//"http://85.214.93.186/DeliveryWeb";
 
 var base64Login=null;
 
