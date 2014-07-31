@@ -3,7 +3,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1 , maximum-scale=1"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta charset="utf-8">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<title>Hof Wichmann</title>
 
         <link rel="stylesheet" href="styles/allgemein.css" type="text/css">
@@ -54,9 +54,9 @@
 				<a href="#tourlist" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Meine Touren" /></a>
 				<span>Tour</span>
 				
-				<a id="tourVehicle" class="wiHeaderDetail" href="javascript:activateVehicleSelect()"> </a>
+				<span id="tourVehicle" class="wiHeaderDetail" > </span>
 				
-				
+				<a id="tourvehicle_link" href="javascript:activateVehicleSelect()"  ><img class="wiconHeader wiconBase32 iconVehicle" src="images/icon_on_empty32.png" title="Auswahl Auto" /></a>
 				<a id="tourcharge_link" href="javascript:loadTourCharge()"  ><img class="wiconHeader wiconBase32 iconGoods" src="images/icon_on_empty32.png" title="Beladung" /></a>
 			</h2>
 			
@@ -76,9 +76,11 @@
 			<h2>
 				<a href="#tour" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
 				<span> Tourstop</span>
+				<img id="transfer_link" onclick="sendGoodsSubmit()" class="wiconHeader wiconBase32 iconReceiver" src="images/icon_on_empty32.png" title="Waren übergeben" />
 				<p id="stoptarget"  class="wiHeaderDetail" ></p>
 				<p id="stopphone"></p>
 				<p id="stoptarget_adr" style="display:none"></p>
+				
 			</h2>
 			
 			<form id="stop_form" name="stop_form">
@@ -88,7 +90,9 @@
 			<h3 id="receivetitle"></h3>
 			<ul id="receive">
 			</ul>
-			
+			<h3 id="stopgrouptask"></h3>
+			<ul id="task">
+			</ul>
 			</form>
 		</section>
 		<!-- 
@@ -108,7 +112,7 @@
 				<p class="wiHeaderDetail" >Ware übergeben an</p>
 			</h2>
 			<p>
-			<button onclick="sendDelivery()">Keiner da</button>
+			<button onclick="sendDelivery(this)">Keiner da</button>
 			</p>
 			<ul>
 			</ul>
@@ -118,7 +122,16 @@
 			</div>
 			 -->
 		</section>
-		
+		<section id="tourtask">
+			<h2>
+				<a href="#tourstop" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Zur Auslieferung" /></a>
+				<span> Aufgabe </span>
+				<p class="wiHeaderDetail" >Lieferschein ausfüllen</p>
+				<img id="transfer_link" onclick="sendShiftTransfer()" class="wiconHeader wiconBase32 iconReceiver" src="images/icon_on_empty32.png" title="Beladung" />
+			</h2>
+			<ul id="tasktransfer">
+			</ul>
+		</section>
 		<section id="karte">
 			<h2>
 				<a href="#tour" ><img class="wiconBase wiconBack" src="images/icon_on_empty32.png" title="Tour" /></a>
@@ -140,6 +153,7 @@
 			</ul>
 			 -->
 		</section>
+		
 		<div style="position:absolute" >
 			
 		</div>
